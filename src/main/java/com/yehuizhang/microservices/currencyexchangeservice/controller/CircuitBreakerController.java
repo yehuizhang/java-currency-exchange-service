@@ -1,6 +1,8 @@
 package com.yehuizhang.microservices.currencyexchangeservice.controller;
 
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,20 @@ public class CircuitBreakerController {
         ResponseEntity<String> responseEntity = new RestTemplate().getForEntity("http://localhost:7777/dummy", String.class);
 
         return responseEntity.getBody();
+    }
+
+    @GetMapping("/sample-rate-limit")
+    @RateLimiter(name = "default")
+    public String sampleRateLimitApi() {
+        logger.info("Sample API call received");
+        return "Rate-Limiter: Allowed!";
+    }
+
+    @GetMapping("/sample-bulk-head")
+    @Bulkhead(name = "default")
+    public String sampleBulkHeadApi() {
+        logger.info("Sample API call received");
+        return "BulkHead: Allowed!";
     }
 
     public String fallbackMethod(Exception ex) {
