@@ -1,5 +1,6 @@
 package com.yehuizhang.microservices.currencyexchangeservice.controller;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,15 @@ public class CircuitBreakerController {
     @GetMapping("/sample-api")
     @Retry(name = "sample-api", fallbackMethod = "fallbackMethod")
     public String sampleApi() {
+        logger.info("Sample API call received");
+        ResponseEntity<String> responseEntity = new RestTemplate().getForEntity("http://localhost:7777/dummy", String.class);
 
+        return responseEntity.getBody();
+    }
+
+    @GetMapping("/sample-circuit-breaker")
+    @CircuitBreaker(name = "sample-api", fallbackMethod = "fallbackMethod")
+    public String sampleCircuitBreakerApi() {
         logger.info("Sample API call received");
         ResponseEntity<String> responseEntity = new RestTemplate().getForEntity("http://localhost:7777/dummy", String.class);
 
